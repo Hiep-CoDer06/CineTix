@@ -1,0 +1,19 @@
+# Build output and IDE state
+bin/
+obj/
+.vs/
+*.user
+*.suo
+
+# Local secrets and environment-specific files
+secrets.json
+appsettings.Local.json
+
+# Node and package caches
+node_modules/
+
+# OS/editor temporary files
+*.tmp
+*.log
+.DS_Store
+Thumbs.db

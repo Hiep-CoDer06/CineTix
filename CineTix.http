@@ -1,0 +1,16 @@
+@baseUrl = https://localhost:7195
+@showtimeId = 1
+
+### API: lấy dữ liệu đặt vé của một suất chiếu
+### Hãy đăng nhập bằng trình duyệt trước; endpoint yêu cầu tài khoản hợp lệ.
+GET {{baseUrl}}/api/showtimes/{{showtimeId}}/booking-data
+Accept: application/json
+
+### API: lưu tạm suất chiếu vào Session
+### Khi gửi thủ công cần thêm anti-forgery token lấy từ trang Đặt vé.
+POST {{baseUrl}}/api/booking-draft
+Content-Type: application/json
+
+{
+  "showtimeId": {{showtimeId}}
+}

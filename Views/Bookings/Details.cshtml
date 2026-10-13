@@ -1,0 +1,102 @@
+@model CineTix.Models.Booking
+
+@{
+    ViewData["Title"] = "Vé điện tử";
+    var seatCodes = Model.BookingSeats
+        .Select(bookingSeat => bookingSeat.Seat?.SeatCode)
+        .Where(seatCode => !string.IsNullOrWhiteSpace(seatCode));
+    var comboLines = Model.BookingCombos
+        .Where(bookingCombo => bookingCombo.Quantity > 0)
+        .Select(bookingCombo => $"{bookingCombo.ComboName} × {bookingCombo.Quantity}");
+}
+
+<div class="page-shell ticket-page">
+    <a class="back-link" asp-action="Index">← Vé của tôi</a>
+
+    <div class="ticket-layout">
+        <section class="e-ticket">
+            <div class="ticket-top">
+                <div>
+                    <div class="ticket-brand">CINE<span>TIX</span></div>
+                    <p>Vé điện tử</p>
+                </div>
+                <span class="badge-cine badge-green">@Model.Status</span>
+            </div>
+
+            <div class="ticket-movie-row">
+                <div class="ticket-poster poster">
+                    @if (!string.IsNullOrWhiteSpace(Model.Showtime?.Movie?.PosterUrl))
+                    {
+                        <img src="@Model.Showtime.Movie.PosterUrl" alt="Poster @Model.Showtime.Movie.Title" />
+                    }
+                    else
+                    {
+                        <div class="poster-fallback">@(Model.Showtime?.Movie?.Title ?? "CineTix")</div>
+                    }
+                </div>
+                <div>
+                    <div class="ticket-label">Phim</div>
+                    <h1>@(Model.Showtime?.Movie?.Title ?? "Không có thông tin phim")</h1>
+                    <p>@(Model.Showtime?.Movie?.Genre?.Name ?? "Chưa phân loại") · @(Model.Showtime?.Movie?.DurationMinutes ?? 0) phút</p>
+                </div>
+            </div>
+
+            <div class="ticket-divider"><span></span></div>
+
+            <div class="ticket-info-grid">
+                <div>
+                    <div class="ticket-label">Rạp</div>
+                    <strong>@(Model.Showtime?.Cinema?.Name ?? "Không có rạp")</strong>
+                </div>
+                <div>
+                    <div class="ticket-label">Phòng chiếu</div>
+                    <strong>@(Model.Showtime?.RoomName ?? "Không có phòng")</strong>
+                </div>
+                <div>
+                    <div class="ticket-label">Ngày chiếu</div>
+                    <strong>@(Model.Showtime?.StartTime.ToString("dd/MM/yyyy") ?? "-")</strong>
+                </div>
+                <div>
+                    <div class="ticket-label">Giờ chiếu</div>
+                    <strong>@(Model.Showtime?.StartTime.ToString("HH:mm") ?? "-")</strong>
+                </div>
+                <div class="ticket-seats">
+                    <div class="ticket-label">Ghế đã chọn</div>
+                    <strong>@(seatCodes.Any() ? string.Join(", ", seatCodes) : "Không có ghế")</strong>
+                </div>
+                @if (comboLines.Any())
+                {
+                    <div class="ticket-seats">
+                        <div class="ticket-label">Combo bắp nước</div>
+                        <strong>@string.Join(", ", comboLines)</strong>
+                    </div>
+                }
+                <div>
+                    <div class="ticket-label">Tổng tiền</div>
+                    <strong class="ticket-price">@Model.TotalAmount.ToString("N0") đ</strong>
+                </div>
+            </div>
+        </section>
+
+        <aside class="ticket-side cine-panel">
+            <div class="ticket-label">Mã đặt vé</div>
+            <div class="booking-code">CT-@Model.Id.ToString("D6")</div>
+
+            <div class="qr-placeholder" aria-label="Mã QR minh họa">CT<br />@Model.Id.ToString("D6")</div>
+
+            <div class="ticket-contact">
+                <div class="ticket-label">Thông tin khách hàng</div>
+                <strong>@Model.CustomerName</strong>
+                <span>@Model.CustomerPhone</span>
+                @if (!string.IsNullOrWhiteSpace(Model.CustomerEmail))
+                {
+                    <span>@Model.CustomerEmail</span>
+                }
+            </div>
+
+            <div class="ticket-note">Vui lòng đưa mã đặt vé hoặc thông tin liên hệ tại quầy trước giờ chiếu.</div>
+            <a class="btn-cine w-100" asp-controller="Home" asp-action="Index">Tiếp tục chọn phim</a>
+            <a class="btn-cine btn-outline-cine w-100 mt-2" asp-action="Index">Xem lịch sử vé</a>
+        </aside>
+    </div>
+</div>

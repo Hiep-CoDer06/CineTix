@@ -1,0 +1,90 @@
+@using System.Globalization
+@inject Microsoft.Extensions.Localization.IStringLocalizer<CineTix.SharedResource> Localizer
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - CineTix</title>
+    <link rel="icon" type="image/svg+xml" href="~/images/cinetix-logo.svg" asp-append-version="true" />
+    <link rel="alternate icon" type="image/x-icon" href="~/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/CineTix.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="site-header">
+        <nav class="site-nav container-xl">
+            <a class="brand" asp-controller="Home" asp-action="Index" aria-label="Trang chủ CineTix">CINE<span>TIX</span></a>
+            <div class="main-nav">
+                <a class="@(currentController == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">@Localizer["Home"]</a>
+                <a class="@(currentController == "Movies" ? "active" : "")" asp-controller="Movies" asp-action="Index">@Localizer["Movies"]</a>
+                <a class="@(currentController == "Cinemas" ? "active" : "")" asp-controller="Cinemas" asp-action="Index">@Localizer["Cinemas"]</a>
+                <a class="@(currentController == "Bookings" ? "active" : "")" asp-controller="Bookings" asp-action="Create">@Localizer["BookTickets"]</a>
+            </div>
+            <div class="nav-actions">
+                <a class="btn-cine btn-outline-cine btn-small" asp-controller="Bookings" asp-action="Index">@Localizer["MyTickets"]</a>
+                <div class="culture-switch" aria-label="Chọn ngôn ngữ">
+                    <a class="@(CultureInfo.CurrentUICulture.Name == "vi-VN" ? "active" : "")"
+                       asp-controller="Culture" asp-action="Set" asp-route-culture="vi-VN" asp-route-returnUrl="@returnUrl">VI</a>
+                    <a class="@(CultureInfo.CurrentUICulture.Name == "en-US" ? "active" : "")"
+                       asp-controller="Culture" asp-action="Set" asp-route-culture="en-US" asp-route-returnUrl="@returnUrl">EN</a>
+                </div>
+                <partial name="_LoginPartial" />
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        @RenderBody()
+    </main>
+
+    <footer class="site-footer">
+        <div class="container-xl footer-main">
+            <section class="footer-brand-block" aria-label="Giới thiệu CineTix">
+                <a class="brand footer-brand" asp-controller="Home" asp-action="Index">CINE<span>TIX</span></a>
+                <p>Chọn phim bạn thích, chọn ghế phù hợp và giữ trọn trải nghiệm điện ảnh.</p>
+                <span class="footer-status"><i aria-hidden="true"></i> Lịch chiếu được cập nhật hằng ngày</span>
+            </section>
+
+            <nav class="footer-links" aria-label="Khám phá CineTix">
+                <div>
+                    <h2>Khám phá</h2>
+                    <a asp-controller="Home" asp-action="Index">Trang chủ</a>
+                    <a asp-controller="Movies" asp-action="Index">Phim đang chiếu</a>
+                    <a asp-controller="Cinemas" asp-action="Index">Hệ thống rạp</a>
+                </div>
+                <div>
+                    <h2>Đặt vé</h2>
+                    <a asp-controller="Bookings" asp-action="Create">Chọn suất chiếu</a>
+                    <a asp-controller="Bookings" asp-action="Index">Vé của tôi</a>
+                    <a asp-controller="Home" asp-action="Privacy">Chính sách riêng tư</a>
+                </div>
+            </nav>
+
+            <section class="footer-help" aria-label="Hỗ trợ đặt vé">
+                <h2>Hỗ trợ đặt vé</h2>
+                <p>Kiểm tra suất chiếu, ghế ngồi và vé điện tử của bạn trong mục Vé của tôi.</p>
+                <a class="footer-help-link" asp-controller="Bookings" asp-action="Index">Quản lý vé của tôi <span aria-hidden="true">→</span></a>
+                <span class="footer-hours">Phục vụ mỗi ngày · 08:00 – 22:00</span>
+            </section>
+        </div>
+        <div class="container-xl footer-bottom">
+            <span>© 2026 CineTix. Đồ án Lập trình Web.</span>
+            <span>Phim hay · Chọn ghế · Đặt vé</span>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

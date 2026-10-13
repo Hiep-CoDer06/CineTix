@@ -1,0 +1,24 @@
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    var accountName = User.Identity?.Name ?? string.Empty;
+    var displayName = accountName.Contains('@') ? accountName[..accountName.IndexOf('@')] : accountName;
+    var initial = string.IsNullOrWhiteSpace(displayName) ? "U" : displayName[..1].ToUpperInvariant();
+    <span class="nav-user" title="@accountName">
+        <span class="nav-user-avatar" aria-hidden="true">@initial</span>
+    </span>
+    @if (User.IsInRole(CineTix.Data.IdentitySeedData.AdminRole))
+    {
+        <a class="admin-entry" asp-controller="Admin" asp-action="Index">Quản trị</a>
+    }
+    <form class="logout-form" asp-controller="Account" asp-action="Logout" method="post">
+        <button class="btn-cine btn-outline-cine btn-small" type="submit">Đăng xuất</button>
+    </form>
+}
+else
+{
+    <a class="admin-entry" asp-controller="Account" asp-action="Register">Đăng ký</a>
+    <a class="btn-cine btn-outline-cine btn-small" asp-controller="Account" asp-action="Login">Đăng nhập</a>
+}

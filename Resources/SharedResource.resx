@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="Home" xml:space="preserve"><value>Trang chủ</value></data>
+  <data name="Movies" xml:space="preserve"><value>Phim</value></data>
+  <data name="Cinemas" xml:space="preserve"><value>Rạp</value></data>
+  <data name="BookTickets" xml:space="preserve"><value>Đặt vé</value></data>
+  <data name="MyTickets" xml:space="preserve"><value>Vé của tôi</value></data>
+  <data name="Vietnamese" xml:space="preserve"><value>Tiếng Việt</value></data>
+  <data name="English" xml:space="preserve"><value>Tiếng Anh</value></data>
+</root>

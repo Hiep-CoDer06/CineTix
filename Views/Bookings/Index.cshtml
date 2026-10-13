@@ -1,0 +1,71 @@
+@model IEnumerable<CineTix.Models.Booking>
+
+@{
+    ViewData["Title"] = "Vé của tôi";
+}
+
+<div class="page-shell booking-history-page">
+    <div class="section-head">
+        <div>
+            <h1 class="page-heading">Vé của tôi</h1>
+            <p class="page-description">Xem lại các vé bạn đã đặt tại CineTix.</p>
+        </div>
+        <a class="btn-cine btn-small" asp-action="Create">+ Đặt vé mới</a>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="booking-history-list">
+            @foreach (var booking in Model)
+            {
+                var seatCodes = booking.BookingSeats
+                    .Select(bookingSeat => bookingSeat.Seat?.SeatCode)
+                    .Where(seatCode => !string.IsNullOrWhiteSpace(seatCode));
+                var comboLines = booking.BookingCombos
+                    .Where(bookingCombo => bookingCombo.Quantity > 0)
+                    .Select(bookingCombo => $"{bookingCombo.ComboName} × {bookingCombo.Quantity}");
+
+                <article class="booking-history-card">
+                    <div class="history-poster poster">
+                        @if (!string.IsNullOrWhiteSpace(booking.Showtime?.Movie?.PosterUrl))
+                        {
+                            <img src="@booking.Showtime.Movie.PosterUrl" alt="Poster @booking.Showtime.Movie.Title" />
+                        }
+                        else
+                        {
+                            <div class="poster-fallback">@(booking.Showtime?.Movie?.Title ?? "CineTix")</div>
+                        }
+                    </div>
+                    <div class="history-content">
+                        <h2>@(booking.Showtime?.Movie?.Title ?? "Không có thông tin phim")</h2>
+                        <p>@(booking.Showtime?.Cinema?.Name ?? "Không có rạp") · @(booking.Showtime?.StartTime.ToString("dd/MM/yyyy HH:mm") ?? "-")</p>
+                        <p>Ghế: @(seatCodes.Any() ? string.Join(", ", seatCodes) : "Không có ghế")</p>
+                        @if (comboLines.Any())
+                        {
+                            <p>Combo: @string.Join(", ", comboLines)</p>
+                        }
+                        <small>Mã vé CT-@booking.Id.ToString("D6") · Đặt lúc @booking.BookedAt.ToString("dd/MM/yyyy HH:mm")</small>
+                    </div>
+                    <div class="history-side">
+                        <span class="badge-cine badge-green">@booking.Status</span>
+                        <strong>@booking.TotalAmount.ToString("N0") đ</strong>
+                        <a class="btn-cine btn-outline-cine btn-small" asp-action="Details" asp-route-id="@booking.Id">Xem vé</a>
+                        <div class="history-actions">
+                            <a asp-action="Edit" asp-route-id="@booking.Id">Sửa thông tin</a>
+                            <a asp-action="Delete" asp-route-id="@booking.Id">Hủy vé</a>
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state booking-empty-state">
+            <span class="section-kicker">CHƯA CÓ VÉ</span>
+            <h2>Chuyến xem phim đầu tiên đang chờ bạn</h2>
+            <p>Khám phá lịch chiếu, chọn rạp và lưu lại vé của bạn tại đây.</p>
+            <a class="btn-cine" asp-controller="Movies" asp-action="Index">Khám phá phim</a>
+        </div>
+    }
+</div>

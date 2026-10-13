@@ -1,0 +1,31 @@
+@model CineTix.Models.Booking
+
+@{
+    ViewData["Title"] = "Hủy đặt vé";
+}
+
+<h1>Hủy đặt vé</h1>
+<p class="text-danger">Bạn có chắc muốn hủy đơn đặt vé này không? Các ghế sẽ trở lại trạng thái còn trống.</p>
+
+<dl class="row">
+    <dt class="col-sm-3">Khách hàng</dt>
+    <dd class="col-sm-9">@Model.CustomerName</dd>
+
+    <dt class="col-sm-3">Suất chiếu</dt>
+    <dd class="col-sm-9">
+        @(Model.Showtime?.Movie?.Title ?? "Không có phim") -
+        @(Model.Showtime?.Cinema?.Name ?? "Không có rạp")
+    </dd>
+
+    <dt class="col-sm-3">Ghế đã chọn</dt>
+    <dd class="col-sm-9">@string.Join(", ", Model.BookingSeats.Select(bs => bs.Seat?.SeatCode))</dd>
+
+    <dt class="col-sm-3">Tổng tiền</dt>
+    <dd class="col-sm-9">@Model.TotalAmount.ToString("N0") đ</dd>
+</dl>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Hủy đơn đặt vé</button>
+    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Quay lại</a>
+</form>

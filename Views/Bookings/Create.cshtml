@@ -1,0 +1,329 @@
+@model CineTix.ViewModels.BookingCreateViewModel
+
+@{
+    ViewData["Title"] = "Đặt vé";
+}
+
+<div class="page-shell booking-page">
+    <h1 class="page-heading">Đặt vé xem phim</h1>
+    <p class="page-description">Chọn suất chiếu, ghế ngồi và hoàn tất thông tin liên hệ.</p>
+
+    <form asp-action="Create" method="post" id="booking-form">
+        @Html.AntiForgeryToken()
+        <input asp-for="ShowtimeId" type="hidden" id="showtime-id" />
+        <div asp-validation-summary="ModelOnly" class="text-danger mt-3"></div>
+
+        <section class="cine-panel mb-4">
+            <label for="showtime-select" class="form-label">Suất chiếu</label>
+            <select id="showtime-select" asp-items="ViewBag.ShowtimeId" class="form-select">
+                <option value="">-- Chọn suất chiếu để xem ghế trống --</option>
+            </select>
+            <span asp-validation-for="ShowtimeId" class="text-danger"></span>
+        </section>
+
+        <div class="booking-top">
+            <section class="cine-panel">
+                <h2>Chọn ghế</h2>
+                <p class="muted mb-4" id="showtime-description">Chọn một suất chiếu để tải danh sách ghế còn trống.</p>
+                <div class="booking-seat-tools">
+                    <div class="seat-legend" aria-label="Chú thích loại ghế">
+                        <span><i class="seat-legend-dot seat-legend-standard"></i>Ghế thường</span>
+                        <span><i class="seat-legend-dot seat-legend-vip"></i>Ghế VIP</span>
+                        <span><i class="seat-legend-dot seat-legend-couple"></i>Ghế đôi</span>
+                        <span><i class="seat-legend-dot seat-legend-selected"></i>Đang chọn</span>
+                    </div>
+                    <span class="seat-choice-helper">Chọn ghế trống để tiếp tục</span>
+                </div>
+
+                <div id="seat-loading" class="empty-state">Chưa chọn suất chiếu.</div>
+                <div id="seat-grid" class="seat-grid" aria-live="polite"></div>
+                <div id="seat-empty" class="empty-state d-none">Suất chiếu này hiện không còn ghế trống.</div>
+            </section>
+
+            <aside class="cine-panel booking-summary">
+                <div class="booking-summary-heading">
+                    <span class="section-kicker">ĐƠN HÀNG</span>
+                    <h3>Tóm tắt đặt vé</h3>
+                </div>
+                <p id="booking-summary-note" class="booking-summary-note">Chọn suất chiếu để bắt đầu.</p>
+                <div class="summary-line"><span>Giá ghế từ</span><strong id="ticket-price">0 đ</strong></div>
+                <div class="summary-line"><span>Ghế đã chọn</span><strong id="selected-count">0 ghế</strong></div>
+                <div class="summary-line"><span>Tiền ghế</span><strong id="seat-total">0 đ</strong></div>
+                <div class="summary-line"><span>Combo bắp nước <em id="combo-count" class="summary-count">Chưa chọn</em></span><strong id="combo-total">0 đ</strong></div>
+                <div class="summary-line summary-total"><span>Tổng tiền</span><strong id="selected-total">0 đ</strong></div>
+            </aside>
+        </div>
+
+        <section class="cine-panel combo-section">
+            <div class="combo-section-head">
+                <div>
+                    <h2>Combo bắp nước</h2>
+                    <p class="muted mb-0">Chọn thêm nếu bạn muốn. Có thể bỏ qua và chỉ đặt vé.</p>
+                </div>
+                <span class="combo-note">Nhận tại quầy rạp</span>
+            </div>
+
+            <div class="combo-grid">
+                @for (var comboIndex = 0; comboIndex < Model.AvailableCombos.Count; comboIndex++)
+                {
+                    var combo = Model.AvailableCombos[comboIndex];
+                    var selectionIndex = Model.ComboSelections.FindIndex(selection => selection.FoodComboId == combo.Id);
+
+                    if (selectionIndex < 0)
+                    {
+                        continue;
+                    }
+
+                    <article class="combo-card" data-combo-card>
+                        <input asp-for="ComboSelections[selectionIndex].FoodComboId" type="hidden" />
+                        <div class="combo-card-top">
+                            <div>
+                                <span class="combo-kicker">CINE SNACKS</span>
+                                <h3>@combo.Name</h3>
+                            </div>
+                            <strong class="combo-price">@combo.Price.ToString("N0") đ</strong>
+                        </div>
+                        <p>@combo.Description</p>
+                        <span class="combo-selected-state">Chưa chọn</span>
+                        <div class="combo-controls">
+                            <button type="button" class="combo-step" data-combo-change="-1" data-combo-target="combo-quantity-@selectionIndex" aria-label="Giảm số lượng @combo.Name">−</button>
+                            <input asp-for="ComboSelections[selectionIndex].Quantity"
+                                   type="number"
+                                   min="0"
+                                   max="10"
+                                   id="combo-quantity-@selectionIndex"
+                                   class="combo-quantity"
+                                   data-combo-price="@combo.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                   aria-label="Số lượng @combo.Name" />
+                            <button type="button" class="combo-step" data-combo-change="1" data-combo-target="combo-quantity-@selectionIndex" aria-label="Tăng số lượng @combo.Name">+</button>
+                        </div>
+                    </article>
+                }
+            </div>
+            <span asp-validation-for="ComboSelections" class="text-danger d-block mt-3"></span>
+        </section>
+
+        <section class="cine-panel customer-form">
+            <h2>Thông tin khách hàng</h2>
+            <div class="mb-3">
+                <label asp-for="CustomerName" class="form-label"></label>
+                <input asp-for="CustomerName" class="form-control" placeholder="Ví dụ: Nguyễn Văn An" />
+                <span asp-validation-for="CustomerName" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="CustomerPhone" class="form-label"></label>
+                <input asp-for="CustomerPhone" class="form-control" placeholder="Ví dụ: 0901234567" />
+                <span asp-validation-for="CustomerPhone" class="text-danger"></span>
+            </div>
+            <div class="mb-4">
+                <label asp-for="CustomerEmail" class="form-label"></label>
+                <input asp-for="CustomerEmail" class="form-control" placeholder="email@example.com" />
+                <span asp-validation-for="CustomerEmail" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn-cine" id="confirm-booking" disabled>Xác nhận đặt vé</button>
+            <a class="btn-cine btn-outline-cine ms-2" asp-controller="Home" asp-action="Index">Quay lại</a>
+        </section>
+    </form>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+        const showtimeSelect = document.getElementById('showtime-select');
+        const showtimeIdInput = document.getElementById('showtime-id');
+        const seatGrid = document.getElementById('seat-grid');
+        const seatLoading = document.getElementById('seat-loading');
+        const seatEmpty = document.getElementById('seat-empty');
+        const showtimeDescription = document.getElementById('showtime-description');
+        const ticketPriceElement = document.getElementById('ticket-price');
+        const confirmButton = document.getElementById('confirm-booking');
+        const summaryNote = document.getElementById('booking-summary-note');
+        const comboCountElement = document.getElementById('combo-count');
+        const comboQuantityInputs = [...document.querySelectorAll('.combo-quantity')];
+        const antiForgeryToken = document.querySelector('input[name="__RequestVerificationToken"]').value;
+        const formatter = new Intl.NumberFormat('vi-VN');
+        let ticketPrice = 0;
+
+        function updateBookingSummary() {
+            const selectedSeats = [...document.querySelectorAll('input[name="SelectedSeatIds"]:checked')];
+            const count = selectedSeats.length;
+            const seatTotal = selectedSeats.reduce((total, seat) => total + Number(seat.dataset.unitPrice || 0), 0);
+            const comboQuantity = comboQuantityInputs.reduce((total, input) => total + Number(input.value || 0), 0);
+            const comboTotal = comboQuantityInputs.reduce((total, input) =>
+                total + Number(input.value || 0) * Number(input.dataset.comboPrice), 0);
+
+            document.getElementById('selected-count').textContent = `${count} ghế`;
+            document.getElementById('seat-total').textContent = `${formatter.format(seatTotal)} đ`;
+            document.getElementById('combo-total').textContent = `${formatter.format(comboTotal)} đ`;
+            document.getElementById('selected-total').textContent = `${formatter.format(seatTotal + comboTotal)} đ`;
+            comboCountElement.textContent = comboQuantity > 0 ? `${comboQuantity} phần` : 'Chưa chọn';
+            confirmButton.disabled = ticketPrice <= 0 || count === 0;
+
+            if (ticketPrice <= 0) {
+                summaryNote.textContent = 'Chọn suất chiếu để bắt đầu.';
+            } else if (count === 0) {
+                summaryNote.textContent = 'Chọn ít nhất một ghế để tiếp tục.';
+            } else {
+                summaryNote.textContent = `Đã sẵn sàng thanh toán cho ${count} ghế.`;
+            }
+        }
+
+        function updateComboCardState(input) {
+            const card = input.closest('[data-combo-card]');
+            const quantity = Number(input.value || 0);
+            card.classList.toggle('is-selected', quantity > 0);
+            card.querySelector('.combo-selected-state').textContent = quantity > 0 ? `Đã thêm ${quantity} phần` : 'Chưa chọn';
+        }
+
+        document.querySelectorAll('[data-combo-change]').forEach(button => {
+            button.addEventListener('click', () => {
+                const quantityInput = document.getElementById(button.dataset.comboTarget);
+                const nextQuantity = Math.min(10, Math.max(0,
+                    Number(quantityInput.value || 0) + Number(button.dataset.comboChange)));
+
+                quantityInput.value = nextQuantity;
+                updateComboCardState(quantityInput);
+                updateBookingSummary();
+            });
+        });
+
+        comboQuantityInputs.forEach(input => {
+            input.addEventListener('input', () => {
+                const safeQuantity = Math.min(10, Math.max(0, Number(input.value || 0)));
+                input.value = safeQuantity;
+                updateComboCardState(input);
+                updateBookingSummary();
+            });
+            updateComboCardState(input);
+        });
+
+        function setLastShowtimeCookie(showtimeId) {
+            document.cookie = `CineTix.LastShowtimeId=${encodeURIComponent(showtimeId)}; max-age=2592000; path=/; samesite=lax`;
+        }
+
+        function getLastShowtimeCookie() {
+            const cookie = document.cookie.split('; ').find(item => item.startsWith('CineTix.LastShowtimeId='));
+            return cookie ? decodeURIComponent(cookie.split('=')[1]) : null;
+        }
+
+        async function saveBookingDraft(showtimeId) {
+            await fetch('/api/booking-draft', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': antiForgeryToken
+                },
+                body: JSON.stringify({ showtimeId: Number(showtimeId) })
+            });
+        }
+
+        function renderSeats(seats) {
+            seatGrid.replaceChildren();
+
+            for (const seat of seats) {
+                const wrapper = document.createElement('div');
+                const seatKind = String(seat.seatType || '').toLowerCase();
+                const seatModifier = seatKind.includes('vip')
+                    ? ' seat-type-vip'
+                    : (seatKind.includes('đôi') || seatKind.includes('doi') || seatKind.includes('couple')
+                        ? ' seat-type-couple'
+                        : ' seat-type-standard');
+                wrapper.className = `seat-choice${seatModifier}`;
+
+                const input = document.createElement('input');
+                input.type = 'checkbox';
+                input.name = 'SelectedSeatIds';
+                input.value = seat.id;
+                input.id = `seat-${seat.id}`;
+                input.dataset.unitPrice = seat.unitPrice;
+                input.addEventListener('change', updateBookingSummary);
+
+                const label = document.createElement('label');
+                label.htmlFor = input.id;
+                const code = document.createElement('strong');
+                code.textContent = seat.seatCode;
+                const type = document.createElement('span');
+                type.textContent = `${seat.seatType} · ${formatter.format(seat.unitPrice)} đ`;
+
+                label.append(code, type);
+                wrapper.append(input, label);
+                seatGrid.append(wrapper);
+            }
+        }
+
+        async function loadBookingData(showtimeId) {
+            seatGrid.replaceChildren();
+            seatLoading.classList.remove('d-none');
+            seatLoading.textContent = 'Đang tải ghế trống...';
+            seatEmpty.classList.add('d-none');
+            ticketPrice = 0;
+            updateBookingSummary();
+            summaryNote.textContent = 'Đang tải thông tin suất chiếu…';
+
+            try {
+                const response = await fetch(`/api/showtimes/${encodeURIComponent(showtimeId)}/booking-data`, {
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Không tìm thấy suất chiếu.');
+                }
+
+                const data = await response.json();
+                showtimeIdInput.value = data.showtimeId;
+                showtimeDescription.textContent = data.description;
+                ticketPrice = Number(data.ticketPrice);
+                const lowestSeatPrice = Math.min(...data.availableSeats.map(seat => Number(seat.unitPrice)));
+                ticketPriceElement.textContent = Number.isFinite(lowestSeatPrice)
+                    ? `${formatter.format(lowestSeatPrice)} đ`
+                    : `${formatter.format(ticketPrice)} đ`;
+                seatLoading.classList.add('d-none');
+
+                if (data.availableSeats.length === 0) {
+                    seatEmpty.classList.remove('d-none');
+                    summaryNote.textContent = 'Suất chiếu này hiện không còn ghế trống.';
+                    return;
+                }
+
+                renderSeats(data.availableSeats);
+                updateBookingSummary();
+            } catch (error) {
+                seatLoading.textContent = error.message || 'Không thể tải danh sách ghế. Vui lòng thử lại.';
+                summaryNote.textContent = 'Không thể tải thông tin ghế. Vui lòng thử lại.';
+            }
+        }
+
+        async function handleShowtimeChange() {
+            const showtimeId = showtimeSelect.value;
+            showtimeIdInput.value = showtimeId;
+
+            if (!showtimeId) {
+                seatGrid.replaceChildren();
+                seatLoading.classList.remove('d-none');
+                seatLoading.textContent = 'Chưa chọn suất chiếu.';
+                seatEmpty.classList.add('d-none');
+                showtimeDescription.textContent = 'Chọn một suất chiếu để tải danh sách ghế còn trống.';
+                ticketPrice = 0;
+                ticketPriceElement.textContent = '0 đ';
+                confirmButton.disabled = true;
+                updateBookingSummary();
+                return;
+            }
+
+            setLastShowtimeCookie(showtimeId);
+            saveBookingDraft(showtimeId).catch(() => { });
+            await loadBookingData(showtimeId);
+        }
+
+        showtimeSelect.addEventListener('change', handleShowtimeChange);
+
+        const initialShowtimeId = showtimeSelect.value || getLastShowtimeCookie();
+        if (initialShowtimeId && [...showtimeSelect.options].some(option => option.value === initialShowtimeId)) {
+            showtimeSelect.value = initialShowtimeId;
+            handleShowtimeChange();
+        }
+
+        updateBookingSummary();
+    </script>
+}

@@ -1,0 +1,61 @@
+@model CineTix.ViewModels.AdminDashboardViewModel
+
+@{
+    ViewData["Title"] = "Quản trị";
+}
+
+<div class="admin-shell">
+    <aside class="admin-sidebar">
+        <a class="admin-brand" asp-controller="Home" asp-action="Index">CINE<span>TIX</span><small>Quản trị hệ thống</small></a>
+        <a class="admin-nav active" asp-action="Index">▦&nbsp; Tổng quan</a>
+        <a class="admin-nav" asp-controller="Movies" asp-action="Index">▣&nbsp; Phim</a>
+        <a class="admin-nav" asp-controller="Cinemas" asp-action="Index">⌖&nbsp; Rạp</a>
+        <a class="admin-nav" asp-controller="Showtimes" asp-action="Index">◷&nbsp; Suất chiếu</a>
+        <a class="admin-nav" asp-controller="Seats" asp-action="Index">▤&nbsp; Ghế</a>
+        <a class="admin-nav" asp-controller="Bookings" asp-action="Index">▧&nbsp; Đặt vé</a>
+    </aside>
+
+    <main class="admin-content">
+        <div class="section-head">
+            <div>
+                <h1 class="page-heading">Tổng quan</h1>
+                <p class="page-description">Số liệu được tính từ dữ liệu hiện có trong CineTix.</p>
+            </div>
+            <a class="btn-cine btn-small" asp-controller="Movies" asp-action="Create">+ Thêm phim</a>
+        </div>
+
+        <section class="admin-stat-grid">
+            <article class="admin-stat-card"><span>Doanh thu hôm nay</span><strong>@Model.TodayRevenue.ToString("N0") đ</strong><small>Từ booking tạo trong ngày</small></article>
+            <article class="admin-stat-card"><span>Booking hôm nay</span><strong>@Model.TodayBookings</strong><small>Đơn đặt vé mới</small></article>
+            <article class="admin-stat-card"><span>Suất chiếu hôm nay</span><strong>@Model.TodayShowtimes</strong><small>Trên toàn bộ rạp</small></article>
+            <article class="admin-stat-card"><span>Phim đang chiếu</span><strong>@Model.NowShowingMovies</strong><small>Đang mở bán vé</small></article>
+        </section>
+
+        <section class="cine-panel admin-movie-panel">
+            <div class="section-head mb-3">
+                <h2 class="section-title">Quản lý phim</h2>
+                <a class="view-all" asp-controller="Movies" asp-action="Index">Xem toàn bộ →</a>
+            </div>
+            @if (Model.RecentMovies.Any())
+            {
+                <div class="admin-movie-table">
+                    <div class="admin-table-head"><span>Tên phim</span><span>Thể loại</span><span>Thời lượng</span><span>Trạng thái</span><span>Hành động</span></div>
+                    @foreach (var movie in Model.RecentMovies)
+                    {
+                        <div class="admin-table-row">
+                            <strong>@movie.Title</strong>
+                            <span>@(movie.Genre?.Name ?? "Chưa phân loại")</span>
+                            <span>@movie.DurationMinutes phút</span>
+                            <span><span class="badge-cine @(movie.IsNowShowing ? "badge-green" : "badge-dark")">@(movie.IsNowShowing ? "Đang chiếu" : "Sắp chiếu")</span></span>
+                            <span><a class="action-link" asp-controller="Movies" asp-action="Edit" asp-route-id="@movie.Id">Sửa</a></span>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">Chưa có phim để hiển thị.</div>
+            }
+        </section>
+    </main>
+</div>

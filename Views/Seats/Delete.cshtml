@@ -1,0 +1,34 @@
+@model CineTix.Models.Seat
+
+@{
+    ViewData["Title"] = "Xóa ghế";
+}
+
+<h1>Xóa ghế</h1>
+<p class="text-danger">Bạn có chắc muốn xóa ghế này không?</p>
+
+<dl class="row">
+    <dt class="col-sm-3">Suất chiếu</dt>
+    <dd class="col-sm-9">
+        @(Model.Showtime?.Movie?.Title ?? "Không có phim") -
+        @(Model.Showtime?.Cinema?.Name ?? "Không có rạp") -
+        @Model.Showtime?.StartTime.ToString("dd/MM/yyyy HH:mm")
+    </dd>
+
+    <dt class="col-sm-3">Mã ghế</dt>
+    <dd class="col-sm-9">@Model.SeatCode</dd>
+
+    <dt class="col-sm-3">Loại ghế</dt>
+    <dd class="col-sm-9">@Model.SeatType</dd>
+
+    <dt class="col-sm-3">Trạng thái</dt>
+    <dd class="col-sm-9">
+        @(Model.IsBooked ? "Đã đặt" : "Còn trống")
+    </dd>
+</dl>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Xóa ghế</button>
+    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+</form>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="Home" xml:space="preserve"><value>Home</value></data>
+  <data name="Movies" xml:space="preserve"><value>Movies</value></data>
+  <data name="Cinemas" xml:space="preserve"><value>Cinemas</value></data>
+  <data name="BookTickets" xml:space="preserve"><value>Book tickets</value></data>
+  <data name="MyTickets" xml:space="preserve"><value>My tickets</value></data>
+  <data name="Vietnamese" xml:space="preserve"><value>Vietnamese</value></data>
+  <data name="English" xml:space="preserve"><value>English</value></data>
+</root>

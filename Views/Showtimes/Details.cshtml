@@ -1,0 +1,29 @@
+@model CineTix.Models.Showtime
+
+@{
+    ViewData["Title"] = "Chi tiết suất chiếu";
+}
+
+<h1>Chi tiết suất chiếu</h1>
+
+<dl class="row">
+    <dt class="col-sm-3">Phim</dt>
+    <dd class="col-sm-9">@(Model.Movie?.Title ?? "Không có phim")</dd>
+
+    <dt class="col-sm-3">Rạp</dt>
+    <dd class="col-sm-9">@(Model.Cinema?.Name ?? "Không có rạp")</dd>
+
+    <dt class="col-sm-3">Thời gian chiếu</dt>
+    <dd class="col-sm-9">@Model.StartTime.ToString("dd/MM/yyyy HH:mm")</dd>
+
+    <dt class="col-sm-3">Phòng chiếu</dt>
+    <dd class="col-sm-9">@Model.RoomName</dd>
+
+    <dt class="col-sm-3">Giá vé</dt>
+    <dd class="col-sm-9">@Model.TicketPrice.ToString("N0") đ</dd>
+</dl>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Sửa</a>
+    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+</div>

@@ -1,0 +1,39 @@
+@model CineTix.Models.Seat
+
+@{
+    ViewData["Title"] = "Chi tiết ghế";
+}
+
+<h1>Chi tiết ghế</h1>
+
+<dl class="row">
+    <dt class="col-sm-3">Suất chiếu</dt>
+    <dd class="col-sm-9">
+        @(Model.Showtime?.Movie?.Title ?? "Không có phim") -
+        @(Model.Showtime?.Cinema?.Name ?? "Không có rạp") -
+        @Model.Showtime?.StartTime.ToString("dd/MM/yyyy HH:mm")
+    </dd>
+
+    <dt class="col-sm-3">Mã ghế</dt>
+    <dd class="col-sm-9">@Model.SeatCode</dd>
+
+    <dt class="col-sm-3">Loại ghế</dt>
+    <dd class="col-sm-9">@Model.SeatType</dd>
+
+    <dt class="col-sm-3">Trạng thái</dt>
+    <dd class="col-sm-9">
+        @if (Model.IsBooked)
+        {
+            <span class="badge bg-danger">Đã đặt</span>
+        }
+        else
+        {
+            <span class="badge bg-success">Còn trống</span>
+        }
+    </dd>
+</dl>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Sửa</a>
+    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+</div>

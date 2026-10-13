@@ -1,0 +1,52 @@
+@model IEnumerable<CineTix.Models.Cinema>
+
+@{
+    ViewData["Title"] = "Hệ thống rạp";
+}
+
+<div class="page-shell">
+    <div class="section-head">
+        <div>
+            <h1 class="page-heading">Hệ thống rạp CineTix</h1>
+            <p class="page-description">Chọn rạp để xem thông tin và các suất chiếu hiện có.</p>
+        </div>
+        @if (User.IsInRole(CineTix.Data.IdentitySeedData.AdminRole))
+        {
+            <a class="btn-cine btn-small" asp-action="Create">+ Thêm rạp</a>
+        }
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="cinema-list">
+            @foreach (var cinema in Model)
+            {
+                <article class="cinema-card">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="cinema-icon">⌖</div>
+                        <div>
+                            <h2 class="cinema-name">@cinema.Name</h2>
+                            <p class="cinema-address">@cinema.Address@(string.IsNullOrWhiteSpace(cinema.City) ? "" : $" · {cinema.City}")</p>
+                            @if (!string.IsNullOrWhiteSpace(cinema.PhoneNumber))
+                            {
+                                <p class="cinema-address mt-1">Điện thoại: @cinema.PhoneNumber</p>
+                            }
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <a class="btn-cine btn-outline-cine btn-small" asp-controller="Showtimes" asp-action="Index">Xem lịch chiếu</a>
+                        @if (User.IsInRole(CineTix.Data.IdentitySeedData.AdminRole))
+                        {
+                            <a class="action-link" asp-action="Edit" asp-route-id="@cinema.Id">Sửa</a>
+                            <a class="action-link" asp-action="Delete" asp-route-id="@cinema.Id">Xóa</a>
+                        }
+                    </div>
+                </article>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">Chưa có rạp nào. Nhấn “Thêm rạp” để bắt đầu.</div>
+    }
+</div>

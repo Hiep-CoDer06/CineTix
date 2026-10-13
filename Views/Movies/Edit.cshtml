@@ -1,0 +1,81 @@
+﻿@model CineTix.Models.Movie
+
+@{
+    ViewData["Title"] = "Sửa phim";
+}
+
+<h1>Sửa phim</h1>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="PosterUrl" />
+
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="GenreId" class="form-label"></label>
+
+        <select asp-for="GenreId" asp-items="ViewBag.GenreId" class="form-select">
+            <option value="">-- Chọn thể loại --</option>
+        </select>
+
+        <span asp-validation-for="GenreId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="DurationMinutes" class="form-label">Thời lượng phút</label>
+        <input asp-for="DurationMinutes" class="form-control" />
+        <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="ReleaseDate" class="form-label">Ngày khởi chiếu</label>
+        <input asp-for="ReleaseDate" type="date" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label for="posterFile" class="form-label">Thay poster phim</label>
+        @if (!string.IsNullOrWhiteSpace(Model.PosterUrl))
+        {
+            <img class="poster-upload-preview" src="@Model.PosterUrl" alt="Poster hiện tại của @Model.Title" />
+        }
+        <input id="posterFile" name="posterFile" type="file" class="form-control"
+               accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+        <div class="form-hint">Để trống nếu muốn giữ poster hiện tại. Tối đa 5 MB.</div>
+        @Html.ValidationMessage("posterFile")
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="IsNowShowing" class="form-check-input" />
+        <label asp-for="IsNowShowing" class="form-check-label">Phim đang chiếu</label>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="IsHot" class="form-check-input" />
+        <label asp-for="IsHot" class="form-check-label"></label>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="IsClassic" class="form-check-input" />
+        <label asp-for="IsClassic" class="form-check-label"></label>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="IsFeatured" class="form-check-input" />
+        <label asp-for="IsFeatured" class="form-check-label"></label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+</form>

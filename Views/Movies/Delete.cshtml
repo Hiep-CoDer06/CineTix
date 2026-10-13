@@ -1,0 +1,29 @@
+﻿@model CineTix.Models.Movie
+
+@{
+    ViewData["Title"] = "Xóa phim";
+}
+
+<h1>Xóa phim</h1>
+
+<p class="text-danger">
+    Bạn có chắc chắn muốn xóa phim này không?
+</p>
+
+<dl class="row">
+    <dt class="col-sm-3">Tên phim</dt>
+    <dd class="col-sm-9">@Model.Title</dd>
+
+    <dt class="col-sm-3">Thời lượng</dt>
+    <dd class="col-sm-9">@Model.DurationMinutes phút</dd>
+
+    <dt class="col-sm-3">Ngày khởi chiếu</dt>
+    <dd class="col-sm-9">@Model.ReleaseDate.ToString("dd/MM/yyyy")</dd>
+</dl>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <button type="submit" class="btn btn-danger">Xác nhận xóa</button>
+    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+</form>

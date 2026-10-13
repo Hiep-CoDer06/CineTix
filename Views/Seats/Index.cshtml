@@ -1,0 +1,55 @@
+﻿@model IEnumerable<CineTix.Models.Seat>
+
+@{
+    ViewData["Title"] = "Danh sách ghế";
+}
+
+<h1>Danh sách ghế</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">+ Thêm ghế</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Suất chiếu</th>
+            <th>Mã ghế</th>
+            <th>Loại ghế</th>
+            <th>Trạng thái</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <div>@(item.Showtime?.Movie?.Title ?? "Không có phim")</div>
+                    <small class="text-muted">
+                        @(item.Showtime?.Cinema?.Name ?? "Không có rạp")
+                        -
+                        @item.Showtime?.StartTime.ToString("dd/MM/yyyy HH:mm")
+                    </small>
+                </td>
+                <td>@item.SeatCode</td>
+                <td>@item.SeatType</td>
+                <td>
+                    @if (item.IsBooked)
+                    {
+                        <span class="badge bg-danger">Đã đặt</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">Còn trống</span>
+                    }
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Sửa</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Chi tiết</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Xóa</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

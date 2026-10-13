@@ -1,0 +1,102 @@
+@model IEnumerable<CineTix.Models.Movie>
+
+@{
+    ViewData["Title"] = "Trang chủ";
+    var featuredMovie = Model.FirstOrDefault(movie => movie.IsNowShowing) ?? Model.FirstOrDefault();
+}
+
+<div class="page-shell">
+    @if (featuredMovie is not null)
+    {
+        <section class="hero">
+            <div class="hero-content">
+                <div class="eyebrows">
+                    @if (featuredMovie.IsHot)
+                    {
+                        <span class="badge-cine badge-hot">HOT</span>
+                    }
+                    <span class="badge-cine badge-red">@(featuredMovie.Genre?.Name?.ToUpperInvariant() ?? "PHIM MỚI")</span>
+                    <span class="badge-cine badge-dark">@(featuredMovie.IsClassic ? "KINH ĐIỂN" : featuredMovie.IsNowShowing ? "ĐANG CHIẾU" : "SẮP CHIẾU")</span>
+                </div>
+                <h1 class="hero-title">@featuredMovie.Title</h1>
+                <div class="hero-facts" aria-label="Thông tin nhanh về phim">
+                    <span>@(featuredMovie.Genre?.Name ?? "Chưa phân loại")</span>
+                    <span>@featuredMovie.DurationMinutes phút</span>
+                    <span>Khởi chiếu @featuredMovie.ReleaseDate.ToString("dd/MM/yyyy")</span>
+                </div>
+                <p class="hero-description">
+                    @(string.IsNullOrWhiteSpace(featuredMovie.Description)
+                        ? "Khám phá bộ phim mới nhất tại CineTix và chọn suất chiếu phù hợp với bạn."
+                        : featuredMovie.Description)
+                </p>
+                <div class="movie-meta">
+                    <span class="rating">★ CineTix lựa chọn</span>
+                    <a class="hero-detail-link" asp-controller="Movies" asp-action="Details" asp-route-id="@featuredMovie.Id">Xem thông tin phim →</a>
+                </div>
+                <a class="btn-cine" asp-controller="Movies" asp-action="Details" asp-route-id="@featuredMovie.Id">Đặt vé ngay</a>
+            </div>
+            <div class="poster hero-poster">
+                @if (!string.IsNullOrWhiteSpace(featuredMovie.PosterUrl))
+                {
+                    <img src="@featuredMovie.PosterUrl" alt="Poster @featuredMovie.Title" />
+                }
+                else
+                {
+                    <div class="poster-fallback">@featuredMovie.Title</div>
+                }
+            </div>
+        </section>
+    }
+    else
+    {
+        <section class="hero">
+            <div class="hero-content">
+                <div class="eyebrows"><span class="badge-cine badge-red">CINETIX</span></div>
+                <h1 class="hero-title">Rạp phim của bạn, theo cách đơn giản hơn.</h1>
+                <p class="hero-description">Thêm phim và suất chiếu trong khu vực quản lý để CineTix bắt đầu hiển thị nội dung.</p>
+                <a class="btn-cine" asp-controller="Movies" asp-action="Create">Thêm phim đầu tiên</a>
+            </div>
+            <div class="poster hero-poster"><div class="poster-fallback">CINE<span>TIX</span></div></div>
+        </section>
+    }
+
+    <section class="home-section">
+        <div class="section-head">
+            <div>
+                <span class="section-kicker">LỊCH CHIẾU HÔM NAY</span>
+                <h2 class="section-title">Phim đang chiếu</h2>
+            </div>
+            <a class="view-all" asp-controller="Movies" asp-action="Index">Xem tất cả →</a>
+        </div>
+
+        @if (Model.Any())
+        {
+            <div class="movie-grid">
+                @foreach (var movie in Model)
+                {
+                    <a class="movie-card" asp-controller="Movies" asp-action="Details" asp-route-id="@movie.Id">
+                        <div class="poster">
+                            @if (!string.IsNullOrWhiteSpace(movie.PosterUrl))
+                            {
+                                <img src="@movie.PosterUrl" alt="Poster @movie.Title" />
+                            }
+                            else
+                            {
+                                <div class="poster-fallback">@movie.Title</div>
+                            }
+                            <span class="poster-rating">@(movie.IsHot ? "HOT" : movie.IsClassic ? "Kinh điển" : movie.IsNowShowing ? "Đang chiếu" : "Sắp chiếu")</span>
+                        </div>
+                        <div class="movie-card-body">
+                            <h3 class="movie-card-title">@movie.Title</h3>
+                            <p class="movie-card-info">@(movie.Genre?.Name ?? "Chưa phân loại") · @movie.DurationMinutes phút</p>
+                        </div>
+                    </a>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">Chưa có phim. Hãy thêm phim để bắt đầu xây dựng rạp CineTix.</div>
+        }
+    </section>
+</div>

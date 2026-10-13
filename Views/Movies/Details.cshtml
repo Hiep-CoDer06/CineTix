@@ -1,0 +1,98 @@
+@model CineTix.ViewModels.MovieDetailsViewModel
+
+@{
+    ViewData["Title"] = Model.Movie.Title;
+    var showtimeDays = Model.Showtimes
+        .GroupBy(showtime => showtime.StartTime.Date)
+        .OrderBy(group => group.Key)
+        .ToList();
+}
+
+<div class="page-shell movie-details-page">
+    <a class="back-link" asp-action="Index">← Quay lại danh sách phim</a>
+
+    <section class="movie-details-hero">
+        <div class="poster details-poster">
+            @if (!string.IsNullOrWhiteSpace(Model.Movie.PosterUrl))
+            {
+                <img src="@Model.Movie.PosterUrl" alt="Poster @Model.Movie.Title" />
+            }
+            else
+            {
+                <div class="poster-fallback">@Model.Movie.Title</div>
+            }
+        </div>
+        <div class="movie-details-content">
+            <div class="eyebrows">
+                @if (Model.Movie.IsHot)
+                {
+                    <span class="badge-cine badge-hot">HOT</span>
+                }
+                <span class="badge-cine badge-red">@(Model.Movie.Genre?.Name?.ToUpperInvariant() ?? "PHIM")</span>
+                <span class="badge-cine badge-dark">@(Model.Movie.IsClassic ? "KINH ĐIỂN" : Model.Movie.IsNowShowing ? "ĐANG CHIẾU" : "SẮP CHIẾU")</span>
+            </div>
+            <h1 class="hero-title">@Model.Movie.Title</h1>
+            <div class="movie-meta">
+                <span>@Model.Movie.DurationMinutes phút</span>
+                <span>Khởi chiếu @Model.Movie.ReleaseDate.ToString("dd/MM/yyyy")</span>
+            </div>
+            <p class="movie-description">@(string.IsNullOrWhiteSpace(Model.Movie.Description) ? "Hiện chưa có mô tả cho phim này." : Model.Movie.Description)</p>
+            <a class="btn-cine" href="#showtimes">Chọn suất chiếu</a>
+        </div>
+    </section>
+
+    <section id="showtimes" class="showtime-section">
+        <div class="section-head showtime-heading">
+            <div>
+                <span class="section-kicker">LỊCH CHIẾU</span>
+                <h2 class="section-title">Chọn suất chiếu</h2>
+                <p class="page-description">Chọn ngày, rạp và giờ chiếu phù hợp để tiếp tục chọn ghế.</p>
+            </div>
+            <span class="showtime-total">@Model.Showtimes.Count() suất chiếu</span>
+        </div>
+
+        @if (Model.Showtimes.Any())
+        {
+            <nav class="showtime-date-tabs" aria-label="Chuyển nhanh đến ngày chiếu">
+                @foreach (var day in showtimeDays)
+                {
+                    <a href="#day-@day.Key.ToString("yyyyMMdd")" class="showtime-date-tab">
+                        <span>@day.Key.ToString("dd/MM")</span>
+                        <small>@day.Key.ToString("dddd", new System.Globalization.CultureInfo("vi-VN"))</small>
+                    </a>
+                }
+            </nav>
+
+            <div class="showtime-groups">
+                @foreach (var dayGroup in showtimeDays)
+                {
+                    <article id="day-@dayGroup.Key.ToString("yyyyMMdd")" class="cine-panel showtime-day">
+                        <div class="showtime-day-heading">
+                            <h3>@dayGroup.Key.ToString("dddd, dd/MM/yyyy", new System.Globalization.CultureInfo("vi-VN"))</h3>
+                            <span>@dayGroup.Count() suất</span>
+                        </div>
+                        @foreach (var cinemaGroup in dayGroup.GroupBy(showtime => showtime.Cinema?.Name ?? "Chưa có rạp"))
+                        {
+                            <div class="showtime-cinema-row">
+                                <div class="showtime-cinema-name">@cinemaGroup.Key</div>
+                                <div class="showtime-buttons">
+                                    @foreach (var showtime in cinemaGroup)
+                                    {
+                                        <a class="showtime-button" asp-controller="Bookings" asp-action="Create" asp-route-showtimeId="@showtime.Id">
+                                            <strong>@showtime.StartTime.ToString("HH:mm")</strong>
+                                            <span>@showtime.RoomName · @showtime.TicketPrice.ToString("N0") đ</span>
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </article>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">Phim này chưa có suất chiếu. Hãy quay lại sau hoặc chọn một phim khác.</div>
+        }
+    </section>
+</div>

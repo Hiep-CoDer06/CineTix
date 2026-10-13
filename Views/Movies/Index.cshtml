@@ -1,0 +1,118 @@
+@model CineTix.ViewModels.MovieIndexViewModel
+
+@{
+    ViewData["Title"] = "Danh sách phim";
+}
+
+<div class="page-shell">
+    <div class="section-head">
+        <div>
+            <h1 class="page-heading">Danh sách phim</h1>
+            <p class="page-description">Có @Model.TotalCount phim phù hợp. Chọn phim bạn muốn xem và bắt đầu đặt vé.</p>
+        </div>
+        @if (User.IsInRole(CineTix.Data.IdentitySeedData.AdminRole))
+        {
+            <a class="btn-cine btn-small" asp-action="Create">+ Thêm phim</a>
+        }
+    </div>
+
+    <div class="movie-page">
+        <aside class="filters">
+            <form method="get" asp-action="Index" class="filter-form">
+                <label class="filter-title" for="movie-search">Tìm kiếm</label>
+                <input id="movie-search" class="form-control mb-3" name="search" value="@Model.Search" placeholder="Tên phim..." />
+
+                <label class="filter-title" for="movie-status">Trạng thái</label>
+                <select id="movie-status" class="form-select mb-3" name="status">
+                    <option value="">Tất cả phim</option>
+                    <option value="now-showing" selected="@(Model.Status == "now-showing" ? "selected" : null)">Đang chiếu</option>
+                    <option value="coming-soon" selected="@(Model.Status == "coming-soon" ? "selected" : null)">Sắp chiếu</option>
+                    <option value="classic" selected="@(Model.Status == "classic" ? "selected" : null)">Kinh điển</option>
+                </select>
+
+                <label class="filter-title" for="movie-genre">Thể loại</label>
+                <select id="movie-genre" class="form-select mb-3" name="genreId">
+                    <option value="">Tất cả thể loại</option>
+                    @foreach (var genre in Model.Genres)
+                    {
+                        <option value="@genre.Id" selected="@(Model.GenreId == genre.Id ? "selected" : null)">@genre.Name</option>
+                    }
+                </select>
+
+                <button class="btn-cine btn-small w-100" type="submit">Áp dụng bộ lọc</button>
+                @if (!string.IsNullOrWhiteSpace(Model.Search) || Model.GenreId.HasValue || !string.IsNullOrWhiteSpace(Model.Status))
+                {
+                    <a class="filter-reset" asp-action="Index">Xóa bộ lọc</a>
+                }
+            </form>
+        </aside>
+
+        <section id="movie-grid">
+            @if (Model.Movies.Any())
+            {
+                <div class="movie-grid">
+                    @foreach (var movie in Model.Movies)
+                    {
+                        <article class="movie-card">
+                            <div class="poster">
+                                @if (!string.IsNullOrWhiteSpace(movie.PosterUrl))
+                                {
+                                    <img src="@movie.PosterUrl" alt="Poster @movie.Title" loading="lazy" />
+                                }
+                                else
+                                {
+                                    <div class="poster-fallback">@movie.Title</div>
+                                }
+                                <span class="poster-rating">@(movie.IsHot ? "HOT" : movie.IsClassic ? "Kinh điển" : movie.IsNowShowing ? "Đang chiếu" : "Sắp chiếu")</span>
+                            </div>
+                            <div class="movie-card-body">
+                                <h2 class="movie-card-title">@movie.Title</h2>
+                                <p class="movie-card-info">@(movie.Genre?.Name ?? "Chưa phân loại") · @movie.DurationMinutes phút</p>
+                                <div class="d-flex align-items-center justify-content-between mt-3 gap-2">
+                                    <a class="btn-cine btn-small" asp-action="Details" asp-route-id="@movie.Id">Xem phim</a>
+                                    @if (User.IsInRole(CineTix.Data.IdentitySeedData.AdminRole))
+                                    {
+                                        <div class="d-flex gap-2">
+                                            <a class="action-link" asp-action="Edit" asp-route-id="@movie.Id">Sửa</a>
+                                            <a class="action-link" asp-action="Delete" asp-route-id="@movie.Id">Xóa</a>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </div>
+
+                @if (Model.TotalPages > 1)
+                {
+                    <nav class="pagination-cine" aria-label="Phân trang danh sách phim">
+                        <a class="page-link @(Model.HasPreviousPage ? string.Empty : "disabled")"
+                           asp-route-page="@(Model.CurrentPage - 1)"
+                           asp-route-search="@Model.Search"
+                           asp-route-genreId="@Model.GenreId"
+                           asp-route-status="@Model.Status">← Trước</a>
+
+                        @for (var currentPage = 1; currentPage <= Model.TotalPages; currentPage++)
+                        {
+                            <a class="page-link @(currentPage == Model.CurrentPage ? "active" : string.Empty)"
+                               asp-route-page="@currentPage"
+                               asp-route-search="@Model.Search"
+                               asp-route-genreId="@Model.GenreId"
+                               asp-route-status="@Model.Status">@currentPage</a>
+                        }
+
+                        <a class="page-link @(Model.HasNextPage ? string.Empty : "disabled")"
+                           asp-route-page="@(Model.CurrentPage + 1)"
+                           asp-route-search="@Model.Search"
+                           asp-route-genreId="@Model.GenreId"
+                           asp-route-status="@Model.Status">Sau →</a>
+                    </nav>
+                }
+            }
+            else
+            {
+                <div class="empty-state">Không tìm thấy phim phù hợp với bộ lọc hiện tại.</div>
+            }
+        </section>
+    </div>
+</div>
